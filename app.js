@@ -4,7 +4,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const ngrok = require("ngrok");
-
+const Users = require("./modules/users");
+const Cart = require("./modules/carts");
+SALT_WORK_FACTOR = 10;
 var app = express();
 
 app.listen(3000, () => {
@@ -20,43 +22,18 @@ mongoose.connect(
     useUnifiedTopology: true
   }
 );
-
-//Food cart schema
-var foodCart = new mongoose.Schema({
-  coordinate: {
-    latitude: Number,
-    longitude: Number
-  },
-  title: String,
-  phoneNumber: String,
-  description: String,
-  image: {
-    uri: String
-  },
-  menu: {
-    menu: [
-      {
-        foodName: String,
-        description: String,
-        price: Number,
-        quantity: Number
-      }
-    ]
-  }
+/*
+var newUser = new Users({
+  firstName: "Kaelyn",
+  lastName: "Rushforth",
+  email: "",
+  phoneNumber: "",
+  password: "tunebug"
+}).save(function(err) {
+  if (err) throw err;
+  console.log("Saved");
 });
-
-//User Schema
-var user = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  email: String,
-  phoneNumber: String
-});
-
-//Create models
-var Cart = mongoose.model("Cart", foodCart);
-var Users = mongoose.model("Users", user);
-
+*/
 //loading code
 /*
 markers.forEach(function(obj) {
@@ -76,8 +53,8 @@ markers.forEach(function(obj) {
     if (err) throw err;
     console.log("saved");
   });
-});*/
-
+});
+*/
 //middleware to parse json requests
 var jParser = bodyParser.json();
 //Ejs for possible templating/server side rendering
@@ -98,6 +75,14 @@ app.get("/carts/:id", function(req, res) {
 app.get("/users/:id", function(req, res) {
   Users.find({ firstName: req.params.id }, function(err, data) {
     if (err) throw err;
+    res.json(data);
+  });
+});
+
+app.get("/users/:id/:testPass", function(req, res) {
+  Users.find({ firstName: req.params.id }, function(err, data) {
+    if (err) throw err;
+    // test a matching password
     res.json(data);
   });
 });
@@ -148,7 +133,3 @@ app.get("*", function(req, res) {
     subdomain: "cartcity"
   });
 })();
-//app.listen(3000);
-
-//server.listen(3000, "127.0.0.1");
-console.log("Listening on port 3000");

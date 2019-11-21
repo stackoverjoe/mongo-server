@@ -1,0 +1,19 @@
+{
+  "name": "testserver",
+  "version": "1.0.0",
+  "description": "testing server",
+  "main": "app.js",
+  "scripts": {
+    "test": "run"
+  },
+  "author": "Joe Leland",
+  "license": "ISC",
+  "dependencies": {
+    "@types/mongoose": "^5.5.32",
+    "body-parser": "^1.19.0",
+    "ejs": "^2.7.4",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.12",
+    "ngrok": "^3.2.5"
+  }
+}

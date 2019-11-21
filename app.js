@@ -1,6 +1,5 @@
-//const markers = require("./carts");
 //var http = require("http");
-const fs = require("fs");
+//const fs = require("fs");was using when not requiring express
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -8,11 +7,13 @@ const ngrok = require("ngrok");
 
 var app = express();
 
-const server = app.listen(3000, () => {
-  console.log("okok");
+app.listen(3000, () => {
+  console.log("Listening on port 3000");
 });
+
 //connect to db
 mongoose.connect(
+  //admin:admin will be env variable
   "mongodb+srv://admin:admin@cluster0-8p2zq.mongodb.net/test?retryWrites=true&w=majority",
   {
     useNewUrlParser: true,
@@ -20,7 +21,7 @@ mongoose.connect(
   }
 );
 
-//create schema
+//Food cart schema
 var foodCart = new mongoose.Schema({
   coordinate: {
     latitude: Number,
@@ -44,6 +45,7 @@ var foodCart = new mongoose.Schema({
   }
 });
 
+//User Schema
 var user = new mongoose.Schema({
   firstName: String,
   lastName: String,
@@ -51,9 +53,10 @@ var user = new mongoose.Schema({
   phoneNumber: String
 });
 
-//use Cart to add new carts
+//Create models
 var Cart = mongoose.model("Cart", foodCart);
 var Users = mongoose.model("Users", user);
+
 //loading code
 /*
 markers.forEach(function(obj) {
@@ -75,31 +78,38 @@ markers.forEach(function(obj) {
   });
 });*/
 
+//middleware to parse json requests
 var jParser = bodyParser.json();
+//Ejs for possible templating/server side rendering
 app.set("view engine", "ejs");
-//app.use('')
 
 app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/carts.js");
+  //res.send("Entry");
+  res.render("landing");
 });
 
 app.get("/carts/:id", function(req, res) {
-  console.log(req.params);
   Cart.find({ title: req.params.id }, function(err, data) {
     if (err) throw err;
     res.json(data);
   });
 });
 
-app.get("/user/:id", function(req, res) {
+app.get("/users/:id", function(req, res) {
   Users.find({ firstName: req.params.id }, function(err, data) {
     if (err) throw err;
     res.json(data);
   });
 });
 
+app.get("/users", function(req, res) {
+  Users.find({}, function(err, data) {
+    if (err) throw err;
+    res.json(data);
+  });
+});
+
 app.get("/carts", function(req, res) {
-  console.log(req.params);
   Cart.find({}, function(err, data) {
     if (err) throw err;
     res.json(data);
@@ -127,20 +137,17 @@ app.post("/carts", jParser, function(req, res) {
   console.log(req.body);
 });
 
-ngrok.connect(
-  {
+app.get("*", function(req, res) {
+  res.render("404");
+});
+
+(async function() {
+  const url = await ngrok.connect({
     proto: "http",
     addr: 3000,
     subdomain: "cartcity"
-  },
-  (err, url) => {
-    if (err) {
-      //return new Error(console.log(err));
-    } else {
-      console.log("Tunnel Created at", url);
-    }
-  }
-);
+  });
+})();
 //app.listen(3000);
 
 //server.listen(3000, "127.0.0.1");
